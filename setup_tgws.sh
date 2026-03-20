@@ -3,31 +3,41 @@ set -e
 
 export DEBIAN_FRONTEND=noninteractive
 
-echo "[1/6] Обновляю пакеты..."
+step() {
+  clear
+  printf '\033[1;31m[%s/6] %s\033[0m\n' "$1" "$2"
+}
+
+step 1 "Обновляю пакеты..."
 apt-get update
 yes '' | apt-get -y \
   -o Dpkg::Options::="--force-confdef" \
   -o Dpkg::Options::="--force-confold" \
   upgrade
 
-echo "[2/6] Ставлю зависимости..."
+step 2 "Ставлю системные зависимости..."
 yes '' | apt-get -y \
   -o Dpkg::Options::="--force-confdef" \
   -o Dpkg::Options::="--force-confold" \
   install git python rust clang pkg-config openssl
 
-echo "[3/6] Обновляю pip..."
+step 3 "Обновляю pip..."
 python -m pip install --upgrade pip setuptools wheel
 
-echo "[4/6] Клонирую проект..."
+step 4 "Клонирую проект..."
 rm -rf "$HOME/tg-ws-proxy-android"
 git clone https://github.com/Superdetectiv4ik/tg-ws-proxy-android.git "$HOME/tg-ws-proxy-android"
 
-echo "[5/6] Ставлю Python-зависимости..."
-cd "$HOME/tg-ws-proxy-android"
-python -m pip install --upgrade websockets==16.0 cryptography psutil pillow
+step 5 "Ставлю зависимости проекта..."
+yes '' | apt-get -y \
+  -o Dpkg::Options::="--force-confdef" \
+  -o Dpkg::Options::="--force-confold" \
+  install python-cryptography python-psutil python-pillow
 
-echo "[6/6] Настраиваю конфиг и команду tgws..."
+cd "$HOME/tg-ws-proxy-android"
+python -m pip install --upgrade websockets==16.0
+
+step 6 "Настраиваю конфиг и команду tgws..."
 mkdir -p "$HOME/TgWsProxy"
 cat > "$HOME/TgWsProxy/config.json" <<'EOF'
 {
@@ -71,9 +81,8 @@ chmod +x "$HOME/bin/tgws"
 touch "$HOME/.bashrc"
 grep -qxF 'export PATH="$HOME/bin:$PATH"' "$HOME/.bashrc" || printf '\nexport PATH="$HOME/bin:$PATH"\n' >> "$HOME/.bashrc"
 
-echo
-echo "Готово."
-echo "Следующие запуски: tgws"
-echo
+clear
+printf '\033[1;31mГотово.\033[0m\n'
+printf 'Следующие запуски: tgws\n\n'
 
 "$HOME/bin/tgws"
