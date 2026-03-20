@@ -5,7 +5,7 @@ echo "[1/6] Обновляю пакеты..."
 pkg update -y && pkg upgrade -y
 
 echo "[2/6] Ставлю зависимости..."
-pkg install -y git python rust clang pkg-config openssl libffi psmisc
+pkg install -y git python rust clang pkg-config openssl libffi
 
 echo "[3/6] Обновляю pip..."
 python -m pip install --upgrade pip setuptools wheel
@@ -48,11 +48,6 @@ EOC
 
 pkill -f "python android.py" 2>/dev/null || true
 
-command -v fuser >/dev/null && {
-  fuser -k 1080/tcp 2>/dev/null || true
-  fuser -k 1081/tcp 2>/dev/null || true
-}
-
 clear
 printf 'termux-wake-lock\ncd tg-ws-proxy-android\npython android.py\n\n'
 
@@ -62,6 +57,7 @@ EOF
 
 chmod +x "$HOME/bin/tgws"
 
+touch "$HOME/.bashrc"
 grep -qxF 'export PATH="$HOME/bin:$PATH"' "$HOME/.bashrc" || echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
 
 echo
