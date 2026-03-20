@@ -2,10 +2,11 @@
 set -e
 
 echo "[1/6] Обновляю пакеты..."
-pkg update -y && pkg upgrade -y
+pkg update -y
+pkg upgrade -y
 
 echo "[2/6] Ставлю зависимости..."
-pkg install -y git python rust clang pkg-config openssl libffi
+pkg install -y git python rust clang openssl
 
 echo "[3/6] Обновляю pip..."
 python -m pip install --upgrade pip setuptools wheel
@@ -32,6 +33,7 @@ EOF
 mkdir -p "$HOME/bin"
 cat > "$HOME/bin/tgws" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
+set -e
 
 CONFIG="$HOME/TgWsProxy/config.json"
 
@@ -52,7 +54,8 @@ clear
 printf 'termux-wake-lock\ncd tg-ws-proxy-android\npython android.py\n\n'
 
 termux-wake-lock
-cd "$HOME/tg-ws-proxy-android" && python android.py
+cd "$HOME/tg-ws-proxy-android"
+python android.py
 EOF
 
 chmod +x "$HOME/bin/tgws"
